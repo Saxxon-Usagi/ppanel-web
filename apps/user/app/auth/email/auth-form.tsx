@@ -6,11 +6,9 @@ import { useRouter } from 'next/navigation';
 import { ReactNode, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 
-import { SurveyRedirectDialog } from '@/components/survey';
 import {
   NEXT_PUBLIC_DEFAULT_USER_EMAIL,
   NEXT_PUBLIC_DEFAULT_USER_PASSWORD,
-  NEXT_PUBLIC_SURVEY_URL,
 } from '@/config/constants';
 import { getRedirectUrl, setAuthorization } from '@/utils/common';
 import LoginForm from './login-form';
@@ -29,8 +27,6 @@ export default function EmailAuthForm() {
     email: NEXT_PUBLIC_DEFAULT_USER_EMAIL || '',
     password: NEXT_PUBLIC_DEFAULT_USER_PASSWORD || '',
   });
-  const [showRedirectAlert, setShowRedirectAlert] = useState(false);
-
   const handleFormSubmit = async (params: any) => {
     const onLogin = async (token?: string) => {
       if (!token) return;
@@ -62,12 +58,8 @@ export default function EmailAuthForm() {
 
             // Store token for authentication
             setAuthorization(token);
-
-            // Store survey pending flag in localStorage
-            window.localStorage.setItem('surveyPending', 'true');
-
-            // Show the survey dialog
-            setShowRedirectAlert(true);
+            router.replace(getRedirectUrl());
+            router.refresh();
             break;
           }
           case 'reset':
@@ -119,14 +111,5 @@ export default function EmailAuthForm() {
       break;
   }
 
-  return (
-    <>
-      {UserForm}
-      <SurveyRedirectDialog
-        open={showRedirectAlert}
-        onOpenChange={setShowRedirectAlert}
-        redirectUrl={NEXT_PUBLIC_SURVEY_URL || '/dashboard'}
-      />
-    </>
-  );
+  return <>{UserForm}</>;
 }
